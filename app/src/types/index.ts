@@ -49,6 +49,7 @@ export interface InvoiceItem {
   size?: string;
   quantity: number;
   unitPrice: number;
+  costPrice?: number;
   lineTotal: number;
 }
 
@@ -65,6 +66,8 @@ export interface Invoice {
   taxAmount: number;
   total: number;
   notes?: string;
+  paymentMode: 'cash' | 'upi' | 'credit_debit_card';
+  paymentStatus: 'paid' | 'pending';
   status: 'draft' | 'paid' | 'cancelled';
   billedBy?: { _id: string; name: string; role: UserRole };
   createdBy?: { name: string };

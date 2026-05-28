@@ -64,7 +64,8 @@ export const createInvoice = asyncHandler(async (req, res) => {
     discountValue,
     taxRate,
     notes,
-    status,
+    paymentMode,
+    paymentStatus,
     billedBy: billedById,
   } = req.body;
 
@@ -92,6 +93,7 @@ export const createInvoice = asyncHandler(async (req, res) => {
       size: product.size,
       quantity: item.quantity,
       unitPrice,
+      costPrice: product.costPrice || 0,
       lineTotal: unitPrice * item.quantity,
     });
   }
@@ -105,6 +107,8 @@ export const createInvoice = asyncHandler(async (req, res) => {
 
   const invoiceNumber = await generateInvoiceNumber();
 
+  const invoiceStatus = paymentStatus === 'pending' ? 'draft' : 'paid';
+
   const invoice = await Invoice.create({
     invoiceNumber,
     customer: customerId,
@@ -117,7 +121,9 @@ export const createInvoice = asyncHandler(async (req, res) => {
     taxAmount,
     total,
     notes,
-    status: status || 'paid',
+    paymentMode: paymentMode || 'cash',
+    paymentStatus: paymentStatus || 'paid',
+    status: invoiceStatus,
     billedBy: billedByUserId,
     createdBy: req.user._id,
   });

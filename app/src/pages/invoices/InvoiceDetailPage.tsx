@@ -59,8 +59,9 @@ export const InvoiceDetailPage = () => {
       <div className="invoice-print card">
         <div className="invoice-header">
           <div>
-            <h1 className="invoice-brand">Mahalaxmi</h1>
-            <p className="invoice-tagline">Authorized Jockey Showroom</p>
+            <h1 className="invoice-brand">Mahalaxmi Exclusive</h1>
+            <p className="invoice-tagline">G-8, Waterfront building, Opp to Shalini Palace, Rankala, Kolhapur - 416010</p>
+            <p className="invoice-tagline">Contact: 9623355664 | GSTIN: 27BPGPC2450G1Z9</p>
           </div>
           <div className="invoice-meta">
             <h2>INVOICE</h2>
@@ -69,10 +70,11 @@ export const InvoiceDetailPage = () => {
             {invoice.billedBy && (
               <p>Billed by: <strong>{invoice.billedBy.name}</strong></p>
             )}
+            <p>Payment mode: <strong>{invoice.paymentMode?.replace(/_/g, ' ')}</strong></p>
             <p>
-              Status:{' '}
-              <span className={`badge ${invoice.status === 'cancelled' ? 'badge-danger' : 'badge-success'}`}>
-                {invoice.status}
+              Payment Status:{' '}
+              <span className={`badge ${invoice.paymentStatus === 'pending' ? 'badge-danger' : 'badge-success'}`}>
+                {invoice.paymentStatus}
               </span>
             </p>
           </div>
@@ -96,7 +98,7 @@ export const InvoiceDetailPage = () => {
               <th>Color</th>
               <th>Size</th>
               <th>Qty</th>
-              <th>Unit price</th>
+              <th>MRP</th>
               <th>Total</th>
             </tr>
           </thead>

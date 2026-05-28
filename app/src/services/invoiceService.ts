@@ -9,6 +9,8 @@ export interface CreateInvoicePayload {
   discountValue?: number;
   taxRate?: number;
   notes?: string;
+  paymentMode?: 'cash' | 'upi' | 'credit_debit_card';
+  paymentStatus?: 'paid' | 'pending';
 }
 
 export const invoiceService = {

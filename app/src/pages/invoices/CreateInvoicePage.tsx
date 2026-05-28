@@ -43,6 +43,8 @@ export const CreateInvoicePage = () => {
   const [discountType, setDiscountType] = useState<'none' | 'percent' | 'fixed'>('none');
   const [discountValue, setDiscountValue] = useState(0);
   const [taxRate, setTaxRate] = useState(0);
+  const [paymentMode, setPaymentMode] = useState<'cash' | 'upi' | 'credit_debit_card'>('cash');
+  const [paymentStatus, setPaymentStatus] = useState<'paid' | 'pending'>('paid');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -159,6 +161,8 @@ export const CreateInvoicePage = () => {
         discountType,
         discountValue,
         taxRate,
+        paymentMode,
+        paymentStatus,
         notes,
       });
       navigate(`/invoices/${invoice._id}`);
@@ -228,6 +232,27 @@ export const CreateInvoicePage = () => {
                 value: s._id,
                 label: `${s.name} (${s.role})`,
               }))}
+            />
+          </div>
+          <div className="form-grid form-grid-2">
+            <Select
+              label="Payment mode"
+              value={paymentMode}
+              onChange={(e) => setPaymentMode(e.target.value as typeof paymentMode)}
+              options={[
+                { value: 'cash', label: 'Cash' },
+                { value: 'upi', label: 'UPI' },
+                { value: 'credit_debit_card', label: 'Credit / Debit Card' },
+              ]}
+            />
+            <Select
+              label="Payment status"
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value as typeof paymentStatus)}
+              options={[
+                { value: 'paid', label: 'Paid' },
+                { value: 'pending', label: 'Pending' },
+              ]}
             />
           </div>
         </div>
