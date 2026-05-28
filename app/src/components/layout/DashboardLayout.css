@@ -1,0 +1,44 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-area {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  display: none;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.main-content {
+  flex: 1;
+  padding: 1.5rem 2rem 2rem;
+}
+
+@media (max-width: 900px) {
+  .main-area {
+    margin-left: 0;
+  }
+  .topbar {
+    display: block;
+  }
+  .main-content {
+    padding: 1rem;
+  }
+}
