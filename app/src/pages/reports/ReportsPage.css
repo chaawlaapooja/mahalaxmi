@@ -64,12 +64,48 @@
 
 .report-filters .form-grid {
   gap: 1rem;
+  align-items: end;
 }
 
 .form-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.report-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.report-section-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  min-width: 280px;
+}
+
+.report-section-header h2 {
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .form-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-section-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-grid-4 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .report-filters .small-note {

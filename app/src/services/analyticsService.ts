@@ -6,6 +6,8 @@ export interface AnalyticsFilterParams {
   from?: string;
   to?: string;
   staffId?: string;
+  category?: string;
+  limit?: number;
 }
 
 export const analyticsService = {
@@ -25,6 +27,12 @@ export const analyticsService = {
   },
   getStockBySize: async () => {
     const { data } = await api.get<ApiResponse<unknown[]>>('/analytics/stock-by-size');
+    return data.data;
+  },
+  getTopProducts: async (params: AnalyticsFilterParams = { limit: 10 }) => {
+    const { data } = await api.get<ApiResponse<unknown[]>>('/analytics/top-products', {
+      params,
+    });
     return data.data;
   },
   getExpenses: async (params: AnalyticsFilterParams = { months: 6 }) => {

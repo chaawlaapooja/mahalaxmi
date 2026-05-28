@@ -5,6 +5,7 @@ import { Spinner } from '../../components/ui/Spinner';
 import { Alert } from '../../components/ui/Alert';
 import { Select } from '../../components/ui/Select';
 import { formatCurrency, monthLabel } from '../../utils/format';
+import { PRODUCT_CATEGORIES, categoryLabel } from '../../constants/productCategories';
 import './ReportsPage.css';
 
 interface SalesPoint {
@@ -24,7 +25,7 @@ interface ProfitPoint {
 export const ReportsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [months, setMonths] = useState(6);
+  const [rangePreset, setRangePreset] = useState<'current' | 'last' | '3' | '6' | '12'>('current');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [staffId, setStaffId] = useState('');
@@ -35,31 +36,61 @@ export const ReportsPage = () => {
   const [salesByStaff, setSalesByStaff] = useState<
     { _id: string; name?: string; revenue: number; invoices: number; profit: number }[]
   >([]);
-  const [stockBySize, setStockBySize] = useState<{ _id: string; quantity: number; skuCount: number }[]>([]);
+  const [stockBySize, setStockBySize] = useState<{ _id: string; quantity: number; value: number; profit: number }[]>([]);
+  const [topProducts, setTopProducts] = useState<
+    { _id: string; name: string; category: string; soldQuantity: number; revenue: number; profit: number }[]
+  >([]);
+  const [topProductsLimit, setTopProductsLimit] = useState(10);
+  const [topProductsCategory, setTopProductsCategory] = useState('');
+
+  const getDateRangeParams = () => {
+    const params: Record<string, string | number> = {};
+    if (staffId) params.staffId = staffId;
+    if (fromDate || toDate) {
+      if (fromDate) params.from = fromDate;
+      if (toDate) params.to = toDate;
+      return params;
+    }
+
+    if (rangePreset === 'last') {
+      const now = new Date();
+      const rangeStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const rangeEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      params.from = rangeStart.toISOString().slice(0, 10);
+      params.to = rangeEnd.toISOString().slice(0, 10);
+      return params;
+    }
+
+    params.months = Number(rangePreset);
+    return params;
+  };
 
   const fetchReports = async () => {
     setLoading(true);
     setError('');
 
-    const params: Record<string, string | number> = {};
-    if (fromDate) params.from = fromDate;
-    if (toDate) params.to = toDate;
-    if (staffId) params.staffId = staffId;
-    if (!fromDate && !toDate) params.months = months;
+    const params = getDateRangeParams();
 
     try {
-      const [salesData, profitData, expensesData, salesByStaffData, stockData] = await Promise.all([
-        analyticsService.getSales(params),
-        analyticsService.getProfit(params),
-        analyticsService.getExpenses(params),
-        analyticsService.getSalesByStaff(params),
-        analyticsService.getStockBySize(),
-      ]);
+      const [salesData, profitData, expensesData, salesByStaffData, stockData, topProductsData] =
+        await Promise.all([
+          analyticsService.getSales(params),
+          analyticsService.getProfit(params),
+          analyticsService.getExpenses(params),
+          analyticsService.getSalesByStaff(params),
+          analyticsService.getStockBySize(),
+          analyticsService.getTopProducts({
+            ...params,
+            limit: topProductsLimit,
+            category: topProductsCategory || undefined,
+          }),
+        ]);
       setSales(salesData as SalesPoint[]);
       setProfit(profitData);
       setExpenseByCategory(expensesData.byCategory);
       setSalesByStaff(salesByStaffData as any[]);
       setStockBySize(stockData as any[]);
+      setTopProducts(topProductsData as any[]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reports');
     } finally {
@@ -77,12 +108,13 @@ export const ReportsPage = () => {
 
   useEffect(() => {
     fetchReports();
-  }, [months, fromDate, toDate, staffId]);
+  }, [rangePreset, fromDate, toDate, staffId, topProductsLimit, topProductsCategory]);
 
   if (loading) return <Spinner />;
   if (error) return <Alert message={error} />;
 
   const maxRevenue = Math.max(...sales.map((s) => s.revenue), 1);
+  const stockTotalQuantity = stockBySize.reduce((total, row) => total + row.quantity, 0);
 
   return (
     <div>
@@ -95,15 +127,21 @@ export const ReportsPage = () => {
         <div className="form-grid form-grid-4">
           <Select
             label="Preset range"
-            value={String(months)}
-            onChange={(e) => setMonths(Number(e.target.value))}
+            value={rangePreset}
+            onChange={(e) => {
+              setRangePreset(e.target.value as 'current' | 'last' | '3' | '6' | '12');
+              setFromDate('');
+              setToDate('');
+            }}
             options={[
+              { value: 'current', label: 'Current month' },
+              { value: 'last', label: 'Last month' },
               { value: '3', label: 'Last 3 months' },
               { value: '6', label: 'Last 6 months' },
               { value: '12', label: 'Last 12 months' },
             ]}
           />
-          <div>
+          <div className="field">
             <label className="field-label">From</label>
             <input
               className="field-input"
@@ -112,7 +150,7 @@ export const ReportsPage = () => {
               onChange={(e) => setFromDate(e.target.value)}
             />
           </div>
-          <div>
+          <div className="field">
             <label className="field-label">To</label>
             <input
               className="field-input"
@@ -132,7 +170,7 @@ export const ReportsPage = () => {
           />
         </div>
         <p className="small-note">
-          Use custom dates to override preset range. The report values refresh automatically.
+          Custom dates override preset range. The report values refresh automatically.
         </p>
       </section>
 
@@ -218,6 +256,66 @@ export const ReportsPage = () => {
       </section>
 
       <section className="report-section card">
+        <div className="report-section-header">
+          <h2>Top selling products</h2>
+          <div className="report-section-controls">
+            <Select
+              label="Top products"
+              value={String(topProductsLimit)}
+              onChange={(e) => setTopProductsLimit(Number(e.target.value))}
+              options={[
+                { value: '10', label: 'Top 10' },
+                { value: '20', label: 'Top 20' },
+                { value: '30', label: 'Top 30' },
+              ]}
+            />
+            <Select
+              label="Category"
+              value={topProductsCategory}
+              onChange={(e) => setTopProductsCategory(e.target.value)}
+              options={[
+                { value: '', label: 'All categories' },
+                ...PRODUCT_CATEGORIES.map((category) => ({
+                  value: category,
+                  label: categoryLabel(category),
+                })),
+              ]}
+            />
+          </div>
+        </div>
+        {topProducts.length === 0 ? (
+          <p className="empty-state">No product sales data</p>
+        ) : (
+          <div className="table-wrap" style={{ boxShadow: 'none', border: 'none' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Qty sold</th>
+                  <th>Revenue</th>
+                  <th>Profit</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topProducts.map((row) => (
+                  <tr key={row._id}>
+                    <td>{row.name}</td>
+                    <td>{categoryLabel(row.category)}</td>
+                    <td>{row.soldQuantity}</td>
+                    <td>{formatCurrency(row.revenue)}</td>
+                    <td style={{ color: row.profit >= 0 ? 'var(--color-1)' : 'var(--danger)', fontWeight: 600 }}>
+                      {formatCurrency(row.profit)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="report-section card">
         <h2>Stock by size</h2>
         {stockBySize.length === 0 ? (
           <p className="empty-state">No stock size data</p>
@@ -227,16 +325,20 @@ export const ReportsPage = () => {
               <thead>
                 <tr>
                   <th>Size</th>
-                  <th>SKU count</th>
-                  <th>Total quantity</th>
+                  <th>Total quantity ({stockTotalQuantity})</th>
+                  <th>Price</th>
+                  <th>Profit</th>
                 </tr>
               </thead>
               <tbody>
                 {stockBySize.map((row) => (
                   <tr key={row._id}>
                     <td>{row._id}</td>
-                    <td>{row.skuCount}</td>
                     <td>{row.quantity}</td>
+                    <td>{formatCurrency(row.value)}</td>
+                    <td style={{ color: row.profit >= 0 ? 'var(--color-1)' : 'var(--danger)', fontWeight: 600 }}>
+                      {formatCurrency(row.profit)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

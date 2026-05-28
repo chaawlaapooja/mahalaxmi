@@ -5,6 +5,7 @@ import {
   expenses,
   profit,
   salesByStaff,
+  topProducts,
   stockBySize,
 } from '../controllers/analyticsController.js';
 import { protect, authorize } from '../middleware/auth.js';
@@ -17,6 +18,7 @@ router.use(authorize('admin'));
 router.get('/dashboard', dashboard);
 router.get('/sales', sales);
 router.get('/sales-by-staff', salesByStaff);
+router.get('/top-products', topProducts);
 router.get('/stock-by-size', stockBySize);
 router.get('/expenses', expenses);
 router.get('/profit', profit);

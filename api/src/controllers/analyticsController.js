@@ -5,6 +5,7 @@ import {
   getExpenseReport,
   getProfitOverview,
   getSalesByStaff,
+  getTopProducts,
   getStockBySize,
 } from '../services/analyticsService.js';
 
@@ -30,6 +31,11 @@ export const profit = asyncHandler(async (req, res) => {
 
 export const salesByStaff = asyncHandler(async (req, res) => {
   const data = await getSalesByStaff(req.query);
+  res.json({ success: true, data });
+});
+
+export const topProducts = asyncHandler(async (req, res) => {
+  const data = await getTopProducts(req.query);
   res.json({ success: true, data });
 });
 

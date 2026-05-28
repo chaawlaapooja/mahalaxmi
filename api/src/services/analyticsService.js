@@ -280,6 +280,52 @@ export const getSalesByStaff = async ({ from, to } = {}) => {
   ]);
 };
 
+export const getTopProducts = async ({ limit = 10, category, from, to } = {}) => {
+  const match = buildInvoiceFilter({ from, to });
+
+  const pipeline = [
+    { $match: match },
+    { $unwind: '$items' },
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'items.product',
+        foreignField: '_id',
+        as: 'product',
+      },
+    },
+    { $unwind: '$product' },
+  ];
+
+  if (category) {
+    pipeline.push({ $match: { 'product.category': category } });
+  }
+
+  pipeline.push(
+    {
+      $group: {
+        _id: '$product._id',
+        name: { $first: '$product.name' },
+        category: { $first: '$product.category' },
+        soldQuantity: { $sum: '$items.quantity' },
+        revenue: { $sum: { $multiply: ['$items.quantity', '$items.unitPrice'] } },
+        profit: {
+          $sum: {
+            $multiply: [
+              { $subtract: ['$items.unitPrice', '$items.costPrice'] },
+              '$items.quantity',
+            ],
+          },
+        },
+      },
+    },
+    { $sort: { soldQuantity: -1, revenue: -1 } },
+    { $limit: Number(limit) },
+  );
+
+  return Invoice.aggregate(pipeline);
+};
+
 export const getStockBySize = async () => {
   return Product.aggregate([
     { $match: { isActive: true } },
@@ -287,7 +333,15 @@ export const getStockBySize = async () => {
       $group: {
         _id: '$size',
         quantity: { $sum: '$quantity' },
-        skuCount: { $sum: 1 },
+        value: { $sum: { $multiply: ['$price', '$quantity'] } },
+        profit: {
+          $sum: {
+            $multiply: [
+              { $subtract: ['$price', '$costPrice'] },
+              '$quantity',
+            ],
+          },
+        },
       },
     },
     { $sort: { quantity: -1, _id: 1 } },
