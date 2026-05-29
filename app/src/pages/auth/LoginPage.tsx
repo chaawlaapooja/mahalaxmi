@@ -62,10 +62,6 @@ export const LoginPage = () => {
             Sign in
           </Button>
         </form>
-
-        <p className="login-hint">
-          Demo: admin@mahalaxmi.com / admin123
-        </p>
       </div>
     </div>
   );
