@@ -19,10 +19,6 @@ app.use(express.json());
 
 app.use('/api', routes);
 
-app.get('/test', (req, res) => {
-  res.send('Backend working');
-});
-
 app.use((_req, _res, next) => {
   next(new AppError('Route not found', 404));
 });
