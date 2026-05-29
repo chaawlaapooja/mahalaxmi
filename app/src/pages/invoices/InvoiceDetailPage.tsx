@@ -60,8 +60,9 @@ export const InvoiceDetailPage = () => {
         <div className="invoice-header">
           <div>
             <h1 className="invoice-brand">Mahalaxmi Exclusive</h1>
-            <p className="invoice-tagline">G-8, Waterfront building, Opp to Shalini Palace, Rankala, Kolhapur - 416010</p>
-            <p className="invoice-tagline">Contact: 9623355664 | GSTIN: 27BPGPC2450G1Z9</p>
+            <p className="invoice-tagline">G-8, Waterfront building, Opp Shalini Palace, Rankala, Kolhapur - 416010</p>
+            <p className="invoice-tagline">Contact: 9623355664</p>
+            <p className="invoice-tagline">GSTIN: 27BPGPC2450G1Z9</p>
           </div>
           <div className="invoice-meta">
             <h2>INVOICE</h2>
@@ -85,7 +86,6 @@ export const InvoiceDetailPage = () => {
             <h3>Bill to</h3>
             <p><strong>{customer?.name}</strong></p>
             <p>{customer?.phone}</p>
-            {customer?.email && <p>{customer.email}</p>}
             {customer?.address && <p>{customer.address}{customer.city ? `, ${customer.city}` : ''}</p>}
           </div>
         </div>
