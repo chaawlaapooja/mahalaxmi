@@ -38,6 +38,11 @@ export const InvoiceDetailPage = () => {
   if (!invoice) return null;
 
   const customer = invoice.customer as Customer;
+  let taxableAmount = invoice.subtotal;
+  const cgstAmount = taxableAmount * 0.025;
+  const sgstAmount = taxableAmount * 0.025;
+  taxableAmount = invoice.subtotal - cgstAmount - sgstAmount;
+  const gstTotalAmount = invoice.subtotal;
 
   return (
     <div>
@@ -56,7 +61,7 @@ export const InvoiceDetailPage = () => {
         </div>
       </div>
 
-      <div className="invoice-print card">
+      <div className="invoice-print card invoice-card">
         <div className="invoice-header">
           <div>
             <h1 className="invoice-brand">Mahalaxmi Exclusive</h1>
@@ -71,22 +76,20 @@ export const InvoiceDetailPage = () => {
             {invoice.billedBy && (
               <p>Billed by: <strong>{invoice.billedBy.name}</strong></p>
             )}
-            <p>Payment mode: <strong>{invoice.paymentMode?.replace(/_/g, ' ')}</strong></p>
-            <p>
-              Payment Status:{' '}
-              <span className={`badge ${invoice.paymentStatus === 'pending' ? 'badge-danger' : 'badge-success'}`}>
-                {invoice.paymentStatus}
-              </span>
-            </p>
           </div>
         </div>
 
         <div className="invoice-parties">
-          <div>
-            <h3>Bill to</h3>
-            <p><strong>{customer?.name}</strong></p>
-            <p>{customer?.phone}</p>
-            {customer?.address && <p>{customer.address}{customer.city ? `, ${customer.city}` : ''}</p>}
+          <div className="invoice-party-row">
+            <div>
+              <span className="invoice-party-label">Bill to : </span>
+              <span className="invoice-party-details">
+                {customer?.name} | {customer?.phone}
+              </span>
+            </div>
+            <div>
+              <span className='invoice-party-details'>{invoice.paymentStatus} </span>{invoice.paymentMode.toUpperCase() && <span>using <span className='invoice-party-details'>{invoice.paymentMode.replace(/_/g, ' ')}</span></span>}
+            </div>
           </div>
         </div>
 
@@ -117,12 +120,30 @@ export const InvoiceDetailPage = () => {
           </tbody>
         </table>
 
+        <table className="tax-summary">
+          <thead>
+            <tr>
+              <th>Taxable Amount</th>
+              <th>CGST (2.5%)</th>
+              <th>SGST (2.5%)</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{formatCurrency(taxableAmount)}</td>
+              <td>{formatCurrency(cgstAmount)}</td>
+              <td>{formatCurrency(sgstAmount)}</td>
+              <td>{formatCurrency(gstTotalAmount)}</td>
+            </tr>
+          </tbody>
+        </table>
+
         <div className="invoice-totals">
           <p>Subtotal: {formatCurrency(invoice.subtotal)}</p>
           {invoice.discountAmount > 0 && (
             <p>Discount: −{formatCurrency(invoice.discountAmount)}</p>
           )}
-          {invoice.taxAmount > 0 && <p>Tax ({invoice.taxRate}%): {formatCurrency(invoice.taxAmount)}</p>}
           <p className="invoice-grand-total">Total: {formatCurrency(invoice.total)}</p>
         </div>
 
@@ -132,7 +153,15 @@ export const InvoiceDetailPage = () => {
           </div>
         )}
 
-        <p className="invoice-footer">Thank you for your business!</p>
+        <div className="invoice-footer">
+          <p>Note: Certified that particulars given above are true and correct.</p>
+          <p><strong>Terms & Conditions</strong></p>
+          <ol>
+            <li>For hygiene reasons, goods once sold cannot be returned or exchanged.</li>
+            <li>No cash refunds are allowed.</li>
+            <li>Subject to Kolhapur jurisdiction only.</li>
+          </ol>
+        </div>
       </div>
     </div>
   );

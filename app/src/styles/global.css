@@ -98,6 +98,10 @@ img {
   padding: 1.25rem;
 }
 
+.invoice-card {
+  padding: 0.5rem 1rem 0.25rem 1rem;
+}
+
 .table-wrap {
   overflow-x: auto;
   background: var(--surface);
