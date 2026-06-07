@@ -171,6 +171,7 @@
 @media print {
   html,
   body {
+    font-family: Arial, sans-serif !important;
     margin: 0;
     padding: 0;
     color: #000;
