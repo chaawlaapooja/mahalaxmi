@@ -1,9 +1,10 @@
 .invoice-print {
   max-width: 760px;
   margin: 0 auto;
-  color: #111;
-  font-size: 0.88rem;
-  line-height: 1.35;
+  color: #000;
+  font-size: 0.85rem;
+  line-height: 1.18;
+  font-weight: 500;
 }
 
 .invoice-header {
@@ -13,19 +14,19 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #999;
 }
 
 .invoice-brand {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #111;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #000;
   margin-bottom: 0.25rem;
 }
 
 .invoice-tagline {
-  color: #444;
-  font-size: 0.82rem;
+  color: #000;
+  font-size: 0.78rem;
   margin: 0.15rem 0;
 }
 
@@ -35,13 +36,14 @@
 }
 
 .invoice-meta h2 {
-  font-size: 1.05rem;
-  color: var(--color-1);
+  font-size: 0.96rem;
+  color: #000;
   margin: 0 0 0.35rem;
 }
 
 .invoice-meta p {
   margin: 0.2rem 0;
+  color: #000;
 }
 
 .invoice-parties {
@@ -59,18 +61,19 @@
 
 .invoice-party-row p {
   margin: 0;
-  color: #333;
+  color: #000;
 }
 
 .invoice-party-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #000;
   margin-bottom: 0.4rem;
+  font-weight: 600;
 }
 
 .invoice-party-details {
-  color: #111;
+  color: #000;
   font-weight: 600;
 }
 
@@ -82,23 +85,24 @@
 
 .invoice-table th,
 .invoice-table td {
-  border: 1px solid var(--border);
-  padding: 0.5rem 0.45rem;
+  border: 1px solid #999;
+  padding: 0.45rem 0.4rem;
 }
 
 .invoice-table th {
-  background: #eef7f2;
-  color: #222;
-  font-size: 0.82rem;
+  background: #f8f8f8;
+  color: #000;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
 .invoice-table td {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  color: #000;
 }
 
 .invoice-table td code {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
 }
 
 .tax-summary {
@@ -109,15 +113,15 @@
 
 .tax-summary th,
 .tax-summary td {
-  border: 1px solid var(--border);
-  padding: 0.45rem 0.5rem;
-  font-size: 0.82rem;
+  border: 1px solid #999;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.78rem;
+  color: #000;
 }
 
 .tax-summary th {
-  background: #f4fbf8;
+  background: #f2f2f2;
   font-weight: 700;
-  color: #222;
 }
 
 .invoice-totals {
@@ -127,32 +131,36 @@
 }
 
 .invoice-totals p {
-  padding: 0.2rem 0;
+  padding: 0.15rem 0;
   margin: 0;
+  color: #000;
+  font-weight: 600;
 }
 
 .invoice-grand-total {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-1);
-  border-top: 1px solid var(--border);
-  padding-top: 0.45rem !important;
+  color: #000;
+  border-top: 1px solid #999;
+  padding-top: 0.35rem !important;
   margin-top: 0.5rem;
 }
 
 .invoice-notes {
   margin-top: 1rem;
   padding: 0.85rem;
-  background: #f6fbf8;
+  background: #fff;
+  border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  color: #000;
 }
 
 .invoice-footer {
   margin-top: 1rem;
-  color: #555;
-  font-size: 0.76rem;
-  line-height: 1.3;
+  color: #000;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .invoice-footer ol {
@@ -165,21 +173,71 @@
 }
 
 @media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    min-width: auto;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .invoice-print,
+  .invoice-print * {
+    visibility: visible;
+  }
+
   .invoice-print {
     box-shadow: none;
     border: none;
     max-width: none;
-    color: #111;
+    width: 100%;
+    margin: 0;
+    color: #000;
+    font-weight: 500;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
   }
 
-  .invoice-brand {
-    color: #111;
+  .page-header,
+  .no-print {
+    display: none !important;
   }
 
-  .invoice-tagline,
-  .invoice-footer,
+  .invoice-table th,
+  .invoice-table td,
+  .tax-summary th,
+  .tax-summary td {
+    color: #000;
+    border-color: #000;
+  }
+
+  .invoice-table th {
+    background: #fff !important;
+  }
+
+  .invoice-meta h2,
+  .invoice-brand,
   .invoice-party-label,
+  .invoice-party-details,
+  .invoice-footer,
   .invoice-meta p {
-    color: #222;
+    color: #000 !important;
+  }
+
+  @page {
+    size: auto;
+    margin: 0.5cm;
   }
 }
