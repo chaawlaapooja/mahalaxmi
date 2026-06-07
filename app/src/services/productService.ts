@@ -12,7 +12,7 @@ export const productService = {
     return data.data;
   },
   getByBarcode: async (barcode: string) => {
-    const { data } = await api.get<ApiResponse<Product>>(
+    const { data } = await api.get<ApiResponse<Product[]>>(
       `/products/barcode/${encodeURIComponent(barcode.trim())}`
     );
     return data.data;

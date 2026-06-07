@@ -46,6 +46,8 @@ export const CreateInvoicePage = () => {
   const [styleSearch, setStyleSearch] = useState('');
   const [matchingProducts, setMatchingProducts] = useState<Product[]>([]);
   const [productLoading, setProductLoading] = useState(false);
+  const [barcodeOptions, setBarcodeOptions] = useState<Product[]>([]);
+  const [barcodeSelectOpen, setBarcodeSelectOpen] = useState(false);
 
   const [customerId, setCustomerId] = useState('');
   const [billedById, setBilledById] = useState(user?.id || '');
@@ -134,11 +136,18 @@ export const CreateInvoicePage = () => {
     setScanning(true);
     setError('');
     try {
-      const product = await productService.getByBarcode(code);
-      if (product.quantity < 1) {
-        setError(`Out of stock: ${product.name} (${product.size})`);
+      const products = await productService.getByBarcode(code);
+      if (products.length === 1) {
+        const product = products[0];
+        if (product.quantity < 1) {
+          setError(`Out of stock: ${product.name} (${product.size})`);
+        } else {
+          addProductToInvoice(product);
+          setScanValue('');
+        }
       } else {
-        addProductToInvoice(product);
+        setBarcodeOptions(products);
+        setBarcodeSelectOpen(true);
         setScanValue('');
       }
     } catch (err) {
@@ -174,6 +183,17 @@ export const CreateInvoicePage = () => {
       return;
     }
     addProductToInvoice(product);
+  };
+
+  const selectBarcodeOption = (product: Product) => {
+    if (product.quantity < 1) {
+      setError(`Out of stock: ${product.name} (${product.size})`);
+      return;
+    }
+    addProductToInvoice(product);
+    setBarcodeSelectOpen(false);
+    setBarcodeOptions([]);
+    barcodeRef.current?.focus();
   };
 
   const handleCustomerSearch = async (value: string) => {
@@ -638,6 +658,47 @@ export const CreateInvoicePage = () => {
           <Button type="button" onClick={createQuickCustomer}>
             Save customer
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={barcodeSelectOpen}
+        onClose={() => {
+          setBarcodeSelectOpen(false);
+          setBarcodeOptions([]);
+        }}
+        title="Choose product MRP"
+      >
+        <p style={{ marginBottom: '1rem', color: '#444' }}>
+          Multiple active products share this barcode. Pick the correct MRP and variant to add to the invoice.
+        </p>
+        <div className="table-wrap" style={{ marginTop: 0 }}>
+          <table>
+            <thead>
+              <tr>
+                <th>MRP</th>
+                <th>Color</th>
+                <th>Size</th>
+                <th>Stock</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {barcodeOptions.map((product) => (
+                <tr key={product._id}>
+                  <td>{formatCurrency(product.price)}</td>
+                  <td>{product.color}</td>
+                  <td>{product.size}</td>
+                  <td>{product.quantity}</td>
+                  <td>
+                    <Button type="button" size="sm" onClick={() => selectBarcodeOption(product)}>
+                      Select
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Modal>
     </div>

@@ -4,7 +4,7 @@ import { PRODUCT_CATEGORIES } from '../constants/productCategories.js';
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    barcode: { type: String, required: true, unique: true, trim: true },
+    barcode: { type: String, required: true, trim: true },
     category: {
       type: String,
       required: true,
@@ -22,6 +22,7 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+productSchema.index({ barcode: 1 }, { unique: false });
 productSchema.index({ name: 'text', category: 1 });
 productSchema.virtual('isLowStock').get(function isLowStock() {
   return this.quantity <= this.lowStockThreshold;

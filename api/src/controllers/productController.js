@@ -28,9 +28,9 @@ export const getProductByBarcode = asyncHandler(async (req, res) => {
   const barcode = req.params.barcode?.trim();
   if (!barcode) throw new AppError('Barcode is required', 400);
 
-  const product = await Product.findOne({ barcode, isActive: true });
-  if (!product) throw new AppError('No product found for this barcode', 404);
-  res.json({ success: true, data: product });
+  const products = await Product.find({ barcode, isActive: true }).sort({ price: 1 });
+  if (!products.length) throw new AppError('No product found for this barcode', 404);
+  res.json({ success: true, data: products });
 });
 
 export const getProduct = asyncHandler(async (req, res) => {
